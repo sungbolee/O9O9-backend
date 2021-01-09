@@ -2,17 +2,16 @@ import jwt
 from django.http import request,JsonResponse
 from my_settings import SECRET, ALGORITHMS
 from user.models import User
-
 def check_user(func):
     def wrapper_func(self, request,**kwargs):
-        access_token = request.headers.get('authorization')
-        if access_token is None:
+        for_client_token = request.headers.get('authorization')
+        if for_client_token is None:
             return JsonResponse({'message': 'TOKEN PLEASE'},status=400)
         try:
-            user_id = jwt.decode(access_token, SECRET, algorithms=ALGORITHMS)
+            user_id = jwt.decode(for_client_token, SECRET, algorithm=ALGORITHMS)
             user = User.objects.get(id=user_id['id'])
             request.user = user.id
-            return func(self,request)
+            return func(self,request,**kwargs)
         except KeyError:
             return JsonResponse({'message': "KEY_ERROR"}, status=400)
         except User.DoesNotExist:

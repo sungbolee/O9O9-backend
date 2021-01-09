@@ -15,8 +15,8 @@ class Product(models.Model):
     maincategory       = models.ForeignKey('MainCategory', on_delete=models.CASCADE, null=True)
     subcategory        = models.ForeignKey('SubCategory', on_delete=models.CASCADE, null=True)
     subsubcategory     = models.ForeignKey('SubSubCategory', on_delete=models.CASCADE, null=True)
-    buy_count          = models.IntegerField()
-    watchlist          = models.ManyToManyField('user.User', related_name='watch_product', through='BuyCount')
+    buy_count          = models.CharField(max_length=100, null=True)
+    watch_list         = models.ManyToManyField('user.User', related_name='watch_product', through='WatchList')
 
     class Meta:
         db_table = 'products'
