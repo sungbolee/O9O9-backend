@@ -5,7 +5,7 @@ from django.views     import View
 from django.http      import JsonResponse
 
 from user.models     import User
-from product.models  import Product, Brand, ProductGroup, MainCategory, SubCategory, SubSubCategory
+from product.models  import Product, Brand, MainCategory, SubCategory, SubSubCategory
 from .models         import OrderItem, Order, OrderStatus, Shipment
 
 from user.utils import check_user

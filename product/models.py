@@ -9,9 +9,6 @@ class Product(models.Model):
     exchange           = models.ForeignKey('Exchange', on_delete=models.CASCADE, null=True)
     thumbnail_image    = models.URLField(max_length=500)
     detail_image       = models.URLField(max_length=500)
-    essential          = models.BooleanField()
-    optional           = models.BooleanField()
-    productgroup       = models.ForeignKey('ProductGroup', on_delete=models.CASCADE, null=True)
     maincategory       = models.ForeignKey('MainCategory', on_delete=models.CASCADE, null=True)
     subcategory        = models.ForeignKey('SubCategory', on_delete=models.CASCADE, null=True)
     subsubcategory     = models.ForeignKey('SubSubCategory', on_delete=models.CASCADE, null=True)
@@ -26,12 +23,6 @@ class Brand(models.Model):
 
     class Meta:
         db_table = 'brands'
-
-class ProductGroup(models.Model):
-    name = models.CharField(max_length=80, null=True)
-
-    class Meta:
-        db_table = 'productgroups'
 
 class MainCategory(models.Model):
     name = models.CharField(max_length=80,null=True)
