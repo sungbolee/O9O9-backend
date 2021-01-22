@@ -8,10 +8,11 @@ from user.models     import User
 from product.models  import Product, Brand, MainCategory, SubCategory, SubSubCategory
 from .models         import OrderItem, Order, OrderStatus, Shipment
 
-from user.utils import check_user
+from user.utils import login_decorator
+
 
 class OrderView(View):
-    @check_user
+    @login_decorator
     def post(self, request):
         data    = json.loads(request.body)
         user_id = request.user.id
@@ -76,7 +77,7 @@ class OrderView(View):
         
         return JsonResponse({'message': 'ITEM ADD IN CART'}, status=201)
 
-    @check_user
+    @login_decorator
     def patch(self, request, product_id):
         data    = json.loads(request.body)
         user_id = request.user.id
@@ -96,7 +97,7 @@ class OrderView(View):
 
                 return JsonResponse({'message': 'ITEM IS MODIFIED'}, status = 200)
 
-    @check_user
+    @login_decorator
     def get(self, request):
         user_id = request.user.id
         user_products = Order.objects.filter(user_id=user_id, order_status_id=1).prefetch_related('orderitem_set', 'orderitem_set__product').all().order_by('-id')
@@ -115,7 +116,7 @@ class OrderView(View):
         }, status = 200)
 
 class OrderDeleteView(View):
-    @check_user
+    @login_decorator
     def post(self, request):
         data = json.loads(request.body)
         user_id = request.user.id

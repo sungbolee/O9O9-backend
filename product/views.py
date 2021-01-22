@@ -8,7 +8,28 @@ from .models        import MainCategory, SubCategory, Product
 from user.models    import User
 from order.models   import Order, OrderStatus, OrderItem
 from review.models  import Review
-from user.utils     import check_user
+from user.utils     import login_decorator
+
+
+def query_debugger(func):
+    import time
+    import functools
+    from django.db import connection, reset_queries
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        reset_queries()
+        number_of_start_queries = len(connection.queries)
+        start  = time.perf_counter()
+        result = func(*args, **kwargs)
+        end    = time.perf_counter()
+        number_of_end_queries = len(connection.queries)
+        print(f"-------------------------------------------------------------------")
+        print(f"Function : {func.__name__}")
+        print(f"Number of Queries : {number_of_end_queries-number_of_start_queries}")
+        print(f"Finished in : {(end - start):.2f}s")
+        print(f"-------------------------------------------------------------------")
+        return result
+    return wrapper
 
 
 class CategoriesView(View):
@@ -20,6 +41,7 @@ class CategoriesView(View):
 
 
 class ProductsView(View):
+    @query_debugger
     def get(self, request):
         try:
             main_category_id = request.GET.get('main', None)
@@ -39,30 +61,35 @@ class ProductsView(View):
 
             products = Product.objects.filter(query)
 
-            result = [{
-                "id": product.id,
-                "image_url": product.thumbnail_image,
-                "title": product.name,
-                "price": product.price,
-                "brand": product.brand.name,
-                "watch_list": product.watch_list.count(),
-                "buy_count": product.buy_count
-            } for product in products]
+            result = [
+                {
+                    "id": product.id,
+                    "image_url": product.thumbnail_image,
+                    "title": product.name,
+                    "price": product.price,
+                    "brand": product.brand.name,
+                    "watch_list": product.watch_list.count(),
+                    "buy_count": product.buy_count
+                } for product in products
+            ]
             return JsonResponse({'data': result}, status=200)
         except ValueError:
             return JsonResponse({"message": "INVALID_KEY"}, status=400)
 
 
 class ProductDetailView(View):
+    @query_debugger
     def get(self, request, product_id):
         try:
-            product = Product.objects.select_related('maincategory',
-                                                     'subcategory',
-                                                     'brand',
-                                                     'more_information',
-                                                     'seller_information',
-                                                     'exchange'
-                                                     ).get(id=product_id)
+            # product = Product.objects.select_related('maincategory',
+            #                                          'subcategory',
+            #                                          'brand',
+            #                                          'more_information',
+            #                                          'seller_information',
+            #                                          'exchange'
+            #                                          ).get(id=product_id)
+
+            product = Product.objects.all()
 
             product_detail = {
                 "maincategory_id"     : product.maincategory.id,
@@ -127,7 +154,7 @@ class ReviewView(View):
 
 
 class WatchListView(View):
-    @check_user
+    @login_decorator
     def post(self, request):
         try:
             data          = json.loads(request.body)
@@ -143,7 +170,7 @@ class WatchListView(View):
         except KeyError:
             return JsonResponse({'message': 'KEY_ERROR'}, status=400)
 
-    @check_user
+    @login_decorator
     def delete(self, request):
         data = json.loads(request.body)
         user_id = request.user
