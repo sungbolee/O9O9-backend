@@ -14,7 +14,8 @@ from user.utils import login_decorator
 
 
 class QuestionView(View):
-    @login_decorator
+
+    @login_decorator(login_required=False)
     def get(self, request):
         try:
             limit = int(request.GET.get('limit', 100000000000))
@@ -42,16 +43,37 @@ class QuestionView(View):
 
 
 class QuestionDetailView(View):
-    @login_decorator
-    def get(self, request, user_id, question_id):
+    @login_decorator(login_required=True)
+    def get(self, request):
         try:
-            user = User.objects.get(id=user_id)
-            question = Question.objects.get(id=question_id)
+            type_id = request.GET.get('type', None)
+            product_id = request.GET.get('itemNo', None)
+            question_id = request.GET.get('writeNo', None)
 
-            result = {
+            conditions = {}
+
+            if product_id:
+                conditions['product_id'] = product_id
+            if question_id:
+                conditions['id'] = question_id
+
+            user = request.user
+            question = Question.objects.get(**conditions)
+
+            if type_id == 'I':
+                result = {
+                    'question_type': question.question_type.id,
+                    'product_name': question.product.name,
+                    'name': user.name,
+                    'content': question.content
+                }
+
+            else:
+                result = {
                 'question_type': question.question_type.id,
                 'product_name': question.product.name,
                 'name': user.name,
+                'user_id': user.username_id,
                 'email': user.email_address,
                 'phone_number': user.phone_number,
                 'title': question.title,
@@ -65,10 +87,11 @@ class QuestionDetailView(View):
         except KeyError:
             return JsonResponse({'message': 'KEY_ERROR'}, status=200)
 
-    @login_decorator
-    def post(self, request, user_id):
+    @login_decorator(login_required=True)
+    def post(self, request):
         try:
             data = json.loads(request.body)
+            user = request.user
             type_id = data['type_id']
             answer_status_id = data['answer']
             product_id = data['product_name']
@@ -76,7 +99,7 @@ class QuestionDetailView(View):
             content = data['content']
 
             Question.objects.create(
-                user_id=user_id,
+                user_id=user,
                 product_id=product_id,
                 title=title,
                 content=content,
@@ -88,7 +111,28 @@ class QuestionDetailView(View):
         except KeyError:
             return JsonResponse({'message': 'KEY_ERROR'}, status=200)
 
-    # def put(self, request, user_id):
+    @login_decorator(login_required=True)
+    def put(self, request):
+        try:
+            data = json.loads(request.body)
+            user = request.user
+
+            question = Question.objects.get(id=user)
+
+
+
+            # login_user = User.objects.get(id=request.user)
+            # question_type = QuestionType.objects.get(id=data['update_question_type'])
+            # quesiton_type_update = Question.objects.filter(id=question_number).update(question_type=question_type,
+            #                                                                           title=data[
+            #                                                                               'update_question_title'],
+            #                                                                           content=data[
+            #                                                                               'update_question_content'])
+
+            return JsonResponse({'message': 'success'}, status=200)
+        except KeyError:
+            return JsonResponse({'message': 'KEY_ERROR'}, status=400)
+
 
 
 class QuestionInfoView(View):

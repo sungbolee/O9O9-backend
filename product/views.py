@@ -11,27 +11,6 @@ from review.models  import Review
 from user.utils     import login_decorator
 
 
-def query_debugger(func):
-    import time
-    import functools
-    from django.db import connection, reset_queries
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        reset_queries()
-        number_of_start_queries = len(connection.queries)
-        start  = time.perf_counter()
-        result = func(*args, **kwargs)
-        end    = time.perf_counter()
-        number_of_end_queries = len(connection.queries)
-        print(f"-------------------------------------------------------------------")
-        print(f"Function : {func.__name__}")
-        print(f"Number of Queries : {number_of_end_queries-number_of_start_queries}")
-        print(f"Finished in : {(end - start):.2f}s")
-        print(f"-------------------------------------------------------------------")
-        return result
-    return wrapper
-
-
 class CategoriesView(View):
     def get(self, request):
 
@@ -41,7 +20,6 @@ class CategoriesView(View):
 
 
 class ProductsView(View):
-    @query_debugger
     def get(self, request):
         try:
             main_category_id = request.GET.get('main', None)
@@ -78,7 +56,6 @@ class ProductsView(View):
 
 
 class ProductDetailView(View):
-    @query_debugger
     def get(self, request, product_id):
         try:
             # product = Product.objects.select_related('maincategory',

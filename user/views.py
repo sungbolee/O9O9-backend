@@ -11,17 +11,12 @@ from django.db.models import Q
 from .models import User
 from my_settings import SECRET, ALGORITHM
 
-
-def name_validation(name):
-    return re.match('^[a-zA-Z0-9]*$', name)
-
-
-def email_validation(email):
-    return re.match('^[a-zA-Z0-9_+.-]+@([a-zA-Z0-9-]+\.)+[a-zA-Z0-9]+$', email)
-
-
-def password_validation(password):
-    return re.match('^[a-z가-힣A-Z0-9]{8,25}$', password)
+from util.utils import (
+    name_validation,
+    email_validation,
+    password_validation,
+    login_decorator
+)
 
 
 class SignUpView(View):
