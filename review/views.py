@@ -50,38 +50,35 @@ class QuestionDetailView(View):
             product_id = request.GET.get('itemNo', None)
             question_id = request.GET.get('writeNo', None)
 
-            conditions = {}
-
-            if product_id:
-                conditions['product_id'] = product_id
-            if question_id:
-                conditions['id'] = question_id
-
             user = request.user
-            question = Question.objects.get(**conditions)
+            product = Product.objects.get(id=product_id)
+            question = Question.objects.get(id=question_id)
 
             if type_id == 'I':
                 result = {
-                    'question_type': question.question_type.id,
-                    'product_name': question.product.name,
+                    'product_name': product.name,
                     'name': user.name,
-                    'content': question.content
+                    'user_id': user.username_id,
+                    'email': user.email_address,
+                    'phone_number': user.phone_number
                 }
 
             else:
                 result = {
-                'question_type': question.question_type.id,
-                'product_name': question.product.name,
-                'name': user.name,
-                'user_id': user.username_id,
-                'email': user.email_address,
-                'phone_number': user.phone_number,
-                'title': question.title,
-                'content': question.content
-            }
+                    'question_type': question.question_type.id,
+                    'product_name': product.name,
+                    'name': user.name,
+                    'user_id': user.username_id,
+                    'email': user.email_address,
+                    'phone_number': user.phone_number,
+                    'title': question.title,
+                    'content': question.content
+                }
 
             return JsonResponse({"result": result}, status=200)
 
+        except Product.DoesNotExist:
+            return JsonResponse({'message': 'INVALID_ERROR'}, status=400)
         except Question.DoesNotExist:
             return JsonResponse({'message': 'INVALID_ERROR'}, status=400)
         except KeyError:
@@ -99,12 +96,12 @@ class QuestionDetailView(View):
             content = data['content']
 
             Question.objects.create(
-                user_id=user,
+                user_id=user.id,
                 product_id=product_id,
                 title=title,
                 content=content,
                 question_type_id=type_id,
-                answer_status=answer_status_id,
+                answer_status_id=answer_status_id
             )
 
             return JsonResponse({'message': 'success'}, status=200)
@@ -112,26 +109,39 @@ class QuestionDetailView(View):
             return JsonResponse({'message': 'KEY_ERROR'}, status=200)
 
     @login_decorator(login_required=True)
-    def put(self, request):
+    def patch(self, request):
         try:
             data = json.loads(request.body)
             user = request.user
-
-            question = Question.objects.get(id=user)
-
-
-
-            # login_user = User.objects.get(id=request.user)
-            # question_type = QuestionType.objects.get(id=data['update_question_type'])
-            # quesiton_type_update = Question.objects.filter(id=question_number).update(question_type=question_type,
-            #                                                                           title=data[
-            #                                                                               'update_question_title'],
-            #                                                                           content=data[
-            #                                                                               'update_question_content'])
+            type_id = data['type_id']
+            # answer_status_id = data['answer']
+            # product_id = data['product_name']
+            title = data['title']
+            content = data['content']
+            #
+            # Question.objects.(
+            #     user_id=user.id,
+            #     # product_id=product_id,
+            #     title=title,
+            #     content=content,
+            #     question_type_id=type_id,
+            #     # answer_status_id=answer_status_id
+            # )
 
             return JsonResponse({'message': 'success'}, status=200)
         except KeyError:
-            return JsonResponse({'message': 'KEY_ERROR'}, status=400)
+            return JsonResponse({'message': 'KEY_ERROR'}, status=200)
+
+    # @login_decorator(login_required=True)
+    # def delete(self, request):
+    #     try:
+    #         data = json.loads(request.body)
+    #         question_id = data['question_id']
+    #         # user =
+    #         Question.objects.get(user_id=request.user.id)
+    #
+    #         Question.objects.delete(id=question_id)
+
 
 
 
