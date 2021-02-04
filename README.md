@@ -63,11 +63,6 @@
  - Cart CRUD, Email 인증 및 발송 기능 구현
 
 
-## Modeling
-
-<img src='public/abb_model.png' alt='logo'>
-
-
 
 
 
