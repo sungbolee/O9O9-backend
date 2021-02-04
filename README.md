@@ -1,19 +1,10 @@
-##
-
----
-
 # O9O9
 
-<img src='doc/O9O9.png' alt='logo'>
+<center><img src="doc/O9O9.png" width="320px"></center>
 
-<br><br>
+## About O9O9
 
----
-
-## G9
-
-- [G9](https://www.g9.co.kr/) 사이트
-- 소개: 트렌드 라이프 쇼핑 사이트
+> 이베이 코리아에서 운영중인 오픈마켓 [G9]를 클론하는 프로젝트
 
 ## 팀원
 
@@ -29,12 +20,6 @@
 - Front-end: JavaScript ES6, React(CRA), React slick, React select, Sass
 - Back-end: Django, Python, MySQL, jwt, bcrypt
 - 협업툴: Trello, Slack, Github(Rebase)
-
-
-
-## 영상
-
-[O9O9 영상](https://www.youtube.com/watch?v=cxB3ZeLKA88&feature=emb_title)
 
 ## 구현 기능 및 개인 역할
 
@@ -61,7 +46,6 @@
  `이민영`
 
  - Cart CRUD, Email 인증 및 발송 기능 구현
-
 
 
 
